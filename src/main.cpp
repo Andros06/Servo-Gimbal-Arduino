@@ -27,9 +27,12 @@ void setup() {
   Wire.begin();
   Wire.setClock(400000); //400khz clock
   Serial.begin(115200);
+
+  /*
   while (!Serial) {
     ;
   }
+  */ 
 
   int err = IMU.init(calib, IMU_ADDRESS);
   if (err != 0) {
@@ -104,9 +107,10 @@ void loop() {
   IMU.update();
   IMU.getAccel(&accelData);
 
+
   servo_pos = 180 - (accelData.accelY + 1)*90;
 
-  Serial.println(servo_pos);
+  //Serial.println(accelData.accelY);
 
   Servo1.write(servo_pos);
   
