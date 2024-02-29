@@ -4,14 +4,8 @@
 #include <PID_v1.h>
 
 Servo Servo1;
+int servo_pos = 0;
 
-//PID
-double Setpoint = 1;
-double Input, Output;
-double Kp = 0.4, Ki = 0.01, Kd = 0.1; //PID verdier
-
-
-PID pid(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 #define IMU_ADDRESS 0x68    //Change to the address of the IMU
 #define PERFORM_CALIBRATION //Comment to disable startup calibration
@@ -30,12 +24,6 @@ void setup() {
 
   Servo1.attach(9);
   
-  //PID
-  pid.SetMode(AUTOMATIC);
-  pid.SetSampleTime(10);
-  pid.SetOutputLimits(-90, 90);
-
-
   Wire.begin();
   Wire.setClock(400000); //400khz clock
   Serial.begin(115200);
@@ -115,23 +103,14 @@ void setup() {
 void loop() {
   IMU.update();
   IMU.getAccel(&accelData);
-  
-  
-  float tilt_angle = accelData.accelZ * (-1);
 
-  Serial.println(tilt_angle);
+  servo_pos = 180 - (accelData.accelY + 1)*90;
 
-  Input = tilt_angle;
-  
-  pid.Compute();
+  Serial.println(servo_pos);
 
-  int servo_pos = constrain(90 + Output * 90, 0, 180);
   Servo1.write(servo_pos);
-
-
-  delay(20);
-
-
-
+  
+  
+  delay(50);
 
 }
